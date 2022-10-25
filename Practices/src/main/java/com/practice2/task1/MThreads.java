@@ -12,7 +12,7 @@ public class MThreads {
         for (int i = 0; i < 10000; i++) {
             arr[i] = ThreadLocalRandom.current().nextInt(0, 1000000);
         }
-        ExecutorService service = Executors.newFixedThreadPool(SIZE);
+        ExecutorService service = Executors.newWorkStealingPool(SIZE);
         List<Future<Integer>> futures = new ArrayList<>();
 
         long start = System.currentTimeMillis()/1000;

@@ -9,8 +9,5 @@
         <module name="Practices" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="Practices" target="18" />
-    </bytecodeTargetLevel>
   </component>
 </project>

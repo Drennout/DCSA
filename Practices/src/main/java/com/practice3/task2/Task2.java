@@ -51,7 +51,7 @@ public class Task2 {
     }
 
     public static void main(String[] args) throws IOException {
-        File source = new File("task2.txt");
+        File source = new File("task1.txt");
         File destIO = new File("copy_by_io_file.txt");
         File destNIO = new File("copy_by_nio_file.txt");
         File destApache = new File("copy_by_apache_file.txt");

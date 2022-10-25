@@ -1,79 +1,64 @@
 package com.practice3.task3;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 
 public class CheckSum {
 
-    public static void main(String[] args) throws IOException {
-        checkSum();
+    // Compute a 16-bit checksum for all the remaining bytes
+    // in the given byte buffer
+
+    private static int sum(ByteBuffer bb) {
+        int sum = 0;
+        while (bb.hasRemaining()) {
+            if ((sum & 1) != 0)
+                sum = (sum >> 1) + 0x8000;
+            else
+                sum >>= 1;
+            sum += bb.get() & 0xff;
+            sum &= 0xffff;
+        }
+        return sum;
     }
 
-    public static void checkSum() throws IOException {
-        String result = "";
-        File file = new File("task1.txt");
-        if (!file.exists()) {
-            file.createNewFile();
-            FileWriter fw = new FileWriter(file, true);
-            BufferedWriter bw = new BufferedWriter(fw);
-            bw.write("Hello world.");
-            bw.flush();
-            bw.close();
-            fw.close();
+    // Compute and print a checksum for the given file
+
+    public static int sum(File f) throws IOException {
+
+        FileInputStream fis = new FileInputStream(f);
+        // Open the file and then get a channel from the stream
+        try (fis; FileChannel fc = fis.getChannel()) {
+
+            // Get the file's size and then map it into memory
+            int sz = (int) fc.size();
+            MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, sz);
+
+            return sum(bb);
         }
-        FileReader fr = new FileReader(file);
-        BufferedReader br = new BufferedReader(fr);
-        String str = br.readLine(); // Чтение информации о файле
-        System.out.println("Содержимое прочитанного файла:" + str);
-
-        byte[] buff = str.getBytes(); // Массив байтов получает значение Ascill для каждого байта
-        int byteNum = buff.length; // Количество байтов в тексте
-
-        String choose = (byteNum % 2 == 0 ? "Even" : "Odd"); // Определить, является ли число байтов нечетным или четным
-        System.out.println("Длина текста содержит байты:" + choose);
-        int num = 0;
-
-
-        System.out.print("Последовательность шестнадцатеричных целых чисел, соответствующая каждой паре символов в прочитанном файле:");
-        int[] ten = new int[100];
-        String[] b = new String[100];
-
-        int notnulllength = 0;
-        for (String s : b) {// Получить количество непустых элементов сложения
-            if (s != null) {
-                notnulllength++;
-
-            }
-        }
-        System.out.println('\t');
-        for (int i = 0; i < notnulllength; i++) {
-            ten[i] = Integer.parseInt(b[i], 16); // Преобразовать непустые элементы сложения в десятичные числа
-
-        }
-        int sum = 0; // Вычисляем десятичную сумму
-        int carry = 0; // перенос
-        String checkSum = null; // шестнадцатеричная контрольная сумма
-        for (int i = 0; i < notnulllength; i++) {
-            // Преобразуем непустые элементы сложения в десятичные числа
-            //ten[num+1]=0;
-            sum += ten[i];
-            //System.out.println(sum);
-            checkSum = Long.toHexString(sum);
-            //System.out.println(checkSum);
-            int jud = Integer.parseInt(checkSum, 16); // Преобразовать контрольную сумму в десятичное число
-            if (jud > 65535) {// накапливать каждый раз из первого элемента добавления в качестве номера оценки, посмотреть, больше ли шестнадцатеричное значение этого номера оценки, чем FFFF
-                carry = 1; // Установить цифру переноса на 1
-                sum = jud - 65536 + carry; // итого = исходный номер суждения минус шестнадцатеричное число 10000 плюс перенос 1
-            }
-
-
-        }
-        System.out.println("16-битная контрольная сумма вышеуказанных данных: 0x" + checkSum);
     }
 
+    public static int size(File f) throws IOException {
+        FileInputStream fis = new FileInputStream(f);
+        try (fis; FileChannel fc = fis.getChannel()) {
+            return ((int) fc.size());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
+    public static void main(String[] args) {
+
+
+        File f = new File("file.txt");
+        try {
+            FileInputStream fis = new FileInputStream(f);
+            FileChannel fc = fis.getChannel();
+
+            System.out.println("Checksum: " + sum(f) + "\nSize: " + size(f) + "\nFile name: " + f);
+        } catch (IOException e) {
+            System.err.println(f + ": " + e);
+        }
+    }
 }
