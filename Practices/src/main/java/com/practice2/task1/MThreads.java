@@ -7,9 +7,9 @@ public class MThreads {
     private final static int SIZE = 3;
 
     public static void main(String[] args) {
-        int[] arr = new int[10000];
+        int[] arr = new int[1000000];
 
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < arr.length; i++) {
             arr[i] = ThreadLocalRandom.current().nextInt(0, 1000000);
         }
         ExecutorService service = Executors.newWorkStealingPool(SIZE);
