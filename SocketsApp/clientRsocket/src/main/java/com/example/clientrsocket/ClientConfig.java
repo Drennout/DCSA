@@ -1,4 +1,4 @@
-package web.socketsapp.сlient;
+package com.example.clientrsocket;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +12,7 @@ import java.time.Duration;
 public class ClientConfig {
 
     @Bean
-    public RSocketRequester getRsocketRequester() {
+    public RSocketRequester getRSocketRequester(){
         RSocketRequester.Builder builder = RSocketRequester.builder();
 
         return builder
