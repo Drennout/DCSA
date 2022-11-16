@@ -5,6 +5,8 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrInputDocument;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,7 +19,7 @@ public class SolrService {
     private String solrURL;
 
     @Autowired
-    private HttpSolrClient client;
+    private HttpSolrClient solr;
 
     public String findBookByAuthor(String author) {
         Gson gson = new Gson();
@@ -25,10 +27,28 @@ public class SolrService {
         query.set("q", "author:" + author);
         try {
 
-            QueryResponse response = client.query(query);
+            QueryResponse response = solr.query(query);
 
             return gson.toJson(response.getResults());
 
+        } catch (SolrServerException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void indexingBook(@NotNull BookPayload bookPayload) {
+        SolrInputDocument doc = new SolrInputDocument();
+
+        doc.addField("id", bookPayload.getId());
+        doc.addField("cat", bookPayload.getCat());
+        doc.addField("name", bookPayload.getName());
+        doc.addField("author", bookPayload.getAuthor());
+        doc.addField("_version_", -1);
+
+        try {
+            solr.add(doc);
+            System.out.println(doc);
+            solr.commit();
         } catch (SolrServerException | IOException e) {
             throw new RuntimeException(e);
         }

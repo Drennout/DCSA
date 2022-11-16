@@ -9,6 +9,8 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
+
 @Controller
 public class RSocketController {
 
@@ -21,5 +23,13 @@ public class RSocketController {
         return Mono.just(solrService.findBookByAuthor(author));
     }
 
+    @MessageMapping("fire-and-forget")
+    public Mono<Void> fireAndForget(BookPayload bookPayload) {
+        System.out.println("fire-and-forget");
+//        BookPayload bookPayload = new BookPayload(123, Arrays.asList("book", "hardcover"), "New Book", "Author 1");
+        solrService.indexingBook(bookPayload);
+
+        return Mono.empty();
+    }
 
 }
