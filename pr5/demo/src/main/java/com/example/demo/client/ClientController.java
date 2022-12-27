@@ -42,7 +42,7 @@ public class ClientController {
                 .block();
     }
 
-    @GetMapping("delete")
+    @GetMapping("/delete")
     public String fireAndForget(@RequestParam Long id) {
         rSocketRequester
                 .route("delete")
@@ -56,15 +56,36 @@ public class ClientController {
                 """;
     }
 
-    @GetMapping("all")
+    @GetMapping("/all")
     public List<UserDTO> requestStream() {
         return rSocketRequester
+                .route("all")
+                .retrieveFlux(UserDTO.class)
+                .collectList()
+                .block();
+    }
+    @GetMapping("/user/id/{id}")
+    public String getById(@PathVariable Long id) {
+        return rSocketRequester
+                .route("getById")
+                .data(id)
+                .retrieveMono(String.class)
+                .block();
+    }
+    @GetMapping("/user/age/{age}")
+    public List<UserDTO> getByAge(@PathVariable Integer age) {
+        return rSocketRequester
+                .route("getByAge")
+                .data(age)
+                .retrieveFlux(UserDTO.class)
+                .collectList()
+                .block();
     }
 }
 
 class ClientHandler {
 
-    @MessageMapping("client-status")
+    @MessageMapping("/client-status")
     public Flux<String> statusUpdate(String status) {
         return Flux.interval(Duration.ofSeconds(5)).map(index -> String.valueOf(Runtime.getRuntime().freeMemory()));
     }

@@ -20,6 +20,7 @@ public class RsocketController {
         User user = new User();
         user.setUsername(userDTO.getUsername());
         user.setPassword(userDTO.getPassword());
+        user.setAge(userDTO.getAge());
         repository.save(user);
         return Mono.just("success");
     }
@@ -28,7 +29,6 @@ public class RsocketController {
     @MessageMapping("delete")
     public Mono<Void> deleteReservation(final Long id) {
         repository.delete(repository.findById(id).get());
-
         return Mono.empty();
     }
 
@@ -37,8 +37,22 @@ public class RsocketController {
     Flux<UserDTO> getAllFlights() {
         return Flux
                 .fromIterable(repository.findAll())
-                .map(u -> new UserDTO(u.getId(), u.getUsername(), u.getPassword()));
+                .map(u -> new UserDTO(u.getId(), u.getUsername(), u.getPassword(), u.getAge()));
     }
+
+    @MessageMapping("getById")
+    Mono<UserDTO> getById(final Long id) {
+        return Mono.just(repository.findById(id).get())
+                .map(u -> new UserDTO(u.getId(), u.getUsername(), u.getPassword(), u.getAge()));
+    }
+
+    @MessageMapping("getByAge")
+    Flux<UserDTO> getByAge(final Integer age) {
+        return Flux
+                .fromIterable(repository.findAll().stream().filter(u -> u.getAge() >= age).
+                        map(u -> new UserDTO(u.getId(), u.getUsername(), u.getPassword(), u.getAge())).toList());
+    }
+
 
     //chanel
 //    @MessageMapping("channel")
